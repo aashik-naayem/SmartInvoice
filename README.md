@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 💼 SmartInvoice
 
 > A full-stack SaaS platform for creating professional invoices, tracking payments, automating recurring billing, and managing business finances.
@@ -39,3 +40,7 @@ SmartInvoice/
 ├── backend/
 ├── frontend/
 └── docs/
+=======
+# SmartInvoice
+A full-stack SaaS platform for professional invoice generation, payment tracking, recurring billing, and business analytics.
+>>>>>>> 087e316b466e7ef7af976a07abb4ad2550754932
