@@ -1,22 +1,21 @@
 package com.smartinvoice.dto;
 
-import com.smartinvoice.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterResponse {
+public class InvoiceItemResponse {
 
     private Long id;
-    private String fullName;
-    private String email;
-    private Role role;
-    private LocalDateTime createdAt;
+    private String description;
+    private BigDecimal quantity;
+    private BigDecimal unitPrice;
+    private BigDecimal lineTotal;
 }

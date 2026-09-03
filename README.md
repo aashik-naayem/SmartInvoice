@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 # 💼 SmartInvoice
 
 > A full-stack SaaS platform for creating professional invoices, tracking payments, automating recurring billing, and managing business finances.
 
 ## 🚀 Features
 
-- 🔐 Secure Authentication & Authorization
+- 🔐 Secure Authentication & Authorization (JWT)
 - 👥 Client Management
 - 📄 Professional Invoice Generation
 - 💳 Payment Tracking
@@ -40,7 +39,16 @@ SmartInvoice/
 ├── backend/
 ├── frontend/
 └── docs/
-=======
-# SmartInvoice
-A full-stack SaaS platform for professional invoice generation, payment tracking, recurring billing, and business analytics.
->>>>>>> 087e316b466e7ef7af976a07abb4ad2550754932
+```
+
+## 📌 Current Status
+
+- ✅ User registration (`POST /api/v1/auth/register`)
+- ✅ Login with JWT (`POST /api/v1/auth/login`)
+- ✅ Client management (CRUD, `/api/v1/clients`)
+- ✅ Invoice creation with auto-calculated totals (CRUD, `/api/v1/invoices`)
+- ⬜ PDF export
+- ⬜ Payment tracking
+- ⬜ Recurring invoices & reminders
+- ⬜ Analytics dashboard
+- ⬜ Frontend (not started)

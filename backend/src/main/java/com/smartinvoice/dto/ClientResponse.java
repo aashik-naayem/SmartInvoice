@@ -1,6 +1,5 @@
 package com.smartinvoice.dto;
 
-import com.smartinvoice.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +11,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterResponse {
+public class ClientResponse {
 
     private Long id;
-    private String fullName;
+    private String name;
     private String email;
-    private Role role;
+    private String phone;
+    private String address;
     private LocalDateTime createdAt;
 }
