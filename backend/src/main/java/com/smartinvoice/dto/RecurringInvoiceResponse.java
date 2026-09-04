@@ -1,6 +1,7 @@
 package com.smartinvoice.dto;
 
-import com.smartinvoice.enums.InvoiceStatus;
+import com.smartinvoice.enums.RecurrenceFrequency;
+import com.smartinvoice.enums.RecurringInvoiceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,23 +16,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InvoiceResponse {
+public class RecurringInvoiceResponse {
 
     private Long id;
-    private String invoiceNumber;
     private Long clientId;
     private String clientName;
-    private LocalDate issueDate;
-    private LocalDate dueDate;
-    private InvoiceStatus status;
+    private RecurrenceFrequency frequency;
+    private LocalDate startDate;
+    private LocalDate nextRunDate;
+    private LocalDate endDate;
+    private Integer daysDueAfterIssue;
     private String currency;
-    private BigDecimal subtotal;
     private BigDecimal taxRate;
-    private BigDecimal taxAmount;
-    private BigDecimal totalAmount;
-    private BigDecimal amountPaid;
-    private BigDecimal balanceDue;
     private String notes;
-    private List<InvoiceItemResponse> items;
+    private boolean autoSend;
+    private RecurringInvoiceStatus status;
+    private Integer occurrencesGenerated;
+    private List<RecurringInvoiceItemResponse> items;
     private LocalDateTime createdAt;
 }

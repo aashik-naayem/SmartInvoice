@@ -47,8 +47,8 @@ SmartInvoice/
 - ✅ Login with JWT (`POST /api/v1/auth/login`)
 - ✅ Client management (CRUD, `/api/v1/clients`)
 - ✅ Invoice creation with auto-calculated totals (CRUD, `/api/v1/invoices`)
-- ⬜ PDF export
-- ⬜ Payment tracking
-- ⬜ Recurring invoices & reminders
+- ✅ PDF export
+- ✅ Payment tracking
+- ✅ Recurring invoices & reminders (`/api/v1/recurring-invoices`)
 - ⬜ Analytics dashboard
 - ⬜ Frontend (not started)
