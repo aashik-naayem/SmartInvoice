@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "IBM Plex Serif", ui-serif, Georgia, serif;
+
+  --color-paper: #eef1ea;
+  --color-surface: #ffffff;
+  --color-ink: #1b2a22;
+  --color-ink-muted: #5b6b60;
+  --color-pine: #1f5d4c;
+  --color-pine-dark: #163f34;
+  --color-paid: #2e7d5b;
+  --color-overdue: #b5482a;
+  --color-draft: #8a8577;
+  --color-border: #d8dcd1;
+}
+
+@layer base {
+  html {
+    font-feature-settings: "tnum" 1;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-pine);
+    color: var(--color-surface);
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-pine);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

@@ -50,5 +50,5 @@ SmartInvoice/
 - ✅ PDF export
 - ✅ Payment tracking
 - ✅ Recurring invoices & reminders (`/api/v1/recurring-invoices`)
-- ⬜ Analytics dashboard
-- ⬜ Frontend (not started)
+- ✅ Analytics dashboard (`GET /api/v1/analytics/dashboard`)
+- ✅ Frontend (React + Tailwind — see `frontend/README.md`)
