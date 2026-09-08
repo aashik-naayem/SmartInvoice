@@ -6,6 +6,8 @@ import Button from "../components/Button";
 import { Field, Input, Select, Textarea } from "../components/FormFields";
 import Modal from "../components/Modal";
 import StatusBadge from "../components/StatusBadge";
+import { useConfirm } from "../context/ConfirmContext";
+import { useToast } from "../context/ToastContext";
 import { formatDate } from "../lib/format";
 
 const FREQUENCIES = ["WEEKLY", "MONTHLY", "QUARTERLY", "YEARLY"];
@@ -28,10 +30,11 @@ const EMPTY_FORM = {
 };
 
 export default function RecurringInvoicesPage() {
+  const confirm = useConfirm();
+  const { showSuccess, showError } = useToast();
   const [schedules, setSchedules] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
@@ -44,7 +47,7 @@ export default function RecurringInvoicesPage() {
     recurringApi
       .listRecurringInvoices()
       .then(setSchedules)
-      .catch(() => setError("Could not load recurring invoices."))
+      .catch(() => showError("Could not load recurring invoices."))
       .finally(() => setLoading(false));
   };
 
@@ -92,6 +95,7 @@ export default function RecurringInvoicesPage() {
         })),
       });
       setModalOpen(false);
+      showSuccess("Recurring schedule created.");
       load();
     } catch (err) {
       setFormError(apiErrorMessage(err, "Could not create this schedule."));
@@ -100,22 +104,33 @@ export default function RecurringInvoicesPage() {
     }
   };
 
+  const ACTION_MESSAGES = {
+    pause: "Schedule paused.",
+    resume: "Schedule resumed.",
+    cancel: "Schedule cancelled.",
+    generate: "Invoice generated.",
+  };
+
   const runAction = async (id, action) => {
+    if (action === "cancel") {
+      const ok = await confirm({
+        title: "Cancel schedule",
+        message: "Cancel this recurring schedule? Past invoices are kept, but no new ones will be generated.",
+        confirmLabel: "Cancel schedule",
+      });
+      if (!ok) return;
+    }
+
     setBusyId(id);
     try {
       if (action === "pause") await recurringApi.pauseRecurringInvoice(id);
       if (action === "resume") await recurringApi.resumeRecurringInvoice(id);
-      if (action === "cancel") {
-        if (!window.confirm("Cancel this recurring schedule?")) {
-          setBusyId(null);
-          return;
-        }
-        await recurringApi.cancelRecurringInvoice(id);
-      }
+      if (action === "cancel") await recurringApi.cancelRecurringInvoice(id);
       if (action === "generate") await recurringApi.generateNowRecurringInvoice(id);
+      showSuccess(ACTION_MESSAGES[action]);
       load();
     } catch (err) {
-      alert(apiErrorMessage(err, "Could not complete that action."));
+      showError(apiErrorMessage(err, "Could not complete that action."));
     } finally {
       setBusyId(null);
     }
@@ -132,8 +147,6 @@ export default function RecurringInvoicesPage() {
         </div>
         <Button onClick={openCreate}>New schedule</Button>
       </div>
-
-      {error && <p className="text-sm text-[color:var(--color-overdue)]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
         <table className="w-full text-sm">

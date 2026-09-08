@@ -6,6 +6,8 @@ import * as paymentsApi from "../api/payments";
 import Button from "../components/Button";
 import { Field, Input, Select } from "../components/FormFields";
 import StatusBadge from "../components/StatusBadge";
+import { useConfirm } from "../context/ConfirmContext";
+import { useToast } from "../context/ToastContext";
 import { formatDate, formatMoney } from "../lib/format";
 
 const STATUS_OPTIONS = ["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"];
@@ -22,6 +24,8 @@ const EMPTY_PAYMENT = {
 export default function InvoiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const confirm = useConfirm();
+  const { showSuccess, showError } = useToast();
   const [invoice, setInvoice] = useState(null);
   const [payments, setPayments] = useState([]);
   const [error, setError] = useState("");
@@ -43,18 +47,25 @@ export default function InvoiceDetailPage() {
     try {
       const updated = await invoicesApi.updateInvoiceStatus(id, status);
       setInvoice(updated);
+      showSuccess(`Status updated to ${status}.`);
     } catch (err) {
-      alert(apiErrorMessage(err, "Could not update the status."));
+      showError(apiErrorMessage(err, "Could not update the status."));
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this invoice? This can't be undone.")) return;
+    const ok = await confirm({
+      title: "Delete invoice",
+      message: "Delete this invoice? This can't be undone.",
+      confirmLabel: "Delete",
+    });
+    if (!ok) return;
     try {
       await invoicesApi.deleteInvoice(id);
+      showSuccess("Invoice deleted.");
       navigate("/invoices");
     } catch (err) {
-      alert(apiErrorMessage(err, "Could not delete this invoice."));
+      showError(apiErrorMessage(err, "Could not delete this invoice."));
     }
   };
 
@@ -68,6 +79,7 @@ export default function InvoiceDetailPage() {
         amount: Number(paymentForm.amount),
       });
       setPaymentForm(EMPTY_PAYMENT);
+      showSuccess("Payment recorded.");
       load();
     } catch (err) {
       setPaymentError(apiErrorMessage(err, "Could not record this payment."));
@@ -77,12 +89,18 @@ export default function InvoiceDetailPage() {
   };
 
   const handleDeletePayment = async (paymentId) => {
-    if (!window.confirm("Remove this payment?")) return;
+    const ok = await confirm({
+      title: "Remove payment",
+      message: "Remove this payment? This can't be undone.",
+      confirmLabel: "Remove",
+    });
+    if (!ok) return;
     try {
       await paymentsApi.deletePayment(id, paymentId);
+      showSuccess("Payment removed.");
       load();
     } catch (err) {
-      alert(apiErrorMessage(err, "Could not remove this payment."));
+      showError(apiErrorMessage(err, "Could not remove this payment."));
     }
   };
 
@@ -117,7 +135,11 @@ export default function InvoiceDetailPage() {
           </Select>
           <Button
             variant="secondary"
-            onClick={() => invoicesApi.downloadInvoicePdf(id, invoice.invoiceNumber)}
+            onClick={() =>
+              invoicesApi
+                .downloadInvoicePdf(id, invoice.invoiceNumber)
+                .catch(() => showError("Could not generate the PDF."))
+            }
           >
             Download PDF
           </Button>

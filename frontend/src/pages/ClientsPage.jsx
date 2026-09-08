@@ -4,11 +4,15 @@ import { apiErrorMessage } from "../api/client";
 import Button from "../components/Button";
 import { Field, Input, Textarea } from "../components/FormFields";
 import Modal from "../components/Modal";
+import { useConfirm } from "../context/ConfirmContext";
+import { useToast } from "../context/ToastContext";
 import { formatDate } from "../lib/format";
 
 const EMPTY_FORM = { name: "", email: "", phone: "", address: "" };
 
 export default function ClientsPage() {
+  const confirm = useConfirm();
+  const { showSuccess, showError } = useToast();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,7 +26,7 @@ export default function ClientsPage() {
     clientsApi
       .listClients()
       .then(setClients)
-      .catch(() => setError("Could not load clients."))
+      .catch(() => showError("Could not load clients."))
       .finally(() => setLoading(false));
   };
 
@@ -54,8 +58,10 @@ export default function ClientsPage() {
     try {
       if (editing) {
         await clientsApi.updateClient(editing.id, form);
+        showSuccess(`Updated ${form.name}.`);
       } else {
         await clientsApi.createClient(form);
+        showSuccess(`Added ${form.name}.`);
       }
       setModalOpen(false);
       load();
@@ -67,12 +73,18 @@ export default function ClientsPage() {
   };
 
   const handleDelete = async (client) => {
-    if (!window.confirm(`Delete ${client.name}? This can't be undone.`)) return;
+    const ok = await confirm({
+      title: "Delete client",
+      message: `Delete ${client.name}? This can't be undone.`,
+      confirmLabel: "Delete",
+    });
+    if (!ok) return;
     try {
       await clientsApi.deleteClient(client.id);
+      showSuccess(`Deleted ${client.name}.`);
       load();
     } catch (err) {
-      alert(apiErrorMessage(err, "Could not delete this client."));
+      showError(apiErrorMessage(err, "Could not delete this client."));
     }
   };
 
@@ -87,8 +99,6 @@ export default function ClientsPage() {
         </div>
         <Button onClick={openCreate}>Add client</Button>
       </div>
-
-      {error && !modalOpen && <p className="text-sm text-[color:var(--color-overdue)]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
         <table className="w-full text-sm">

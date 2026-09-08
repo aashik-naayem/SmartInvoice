@@ -3,20 +3,21 @@ import { Link } from "react-router-dom";
 import * as invoicesApi from "../api/invoices";
 import Button from "../components/Button";
 import StatusBadge from "../components/StatusBadge";
+import { useToast } from "../context/ToastContext";
 import { formatDate, formatMoney } from "../lib/format";
 
 export default function InvoicesPage() {
+  const { showError } = useToast();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     invoicesApi
       .listInvoices()
       .then(setInvoices)
-      .catch(() => setError("Could not load invoices."))
+      .catch(() => showError("Could not load invoices."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [showError]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,8 +32,6 @@ export default function InvoicesPage() {
           <Button>New invoice</Button>
         </Link>
       </div>
-
-      {error && <p className="text-sm text-[color:var(--color-overdue)]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
         <table className="w-full text-sm">

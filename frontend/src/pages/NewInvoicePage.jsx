@@ -5,6 +5,7 @@ import * as clientsApi from "../api/clients";
 import * as invoicesApi from "../api/invoices";
 import Button from "../components/Button";
 import { Field, Input, Select, Textarea } from "../components/FormFields";
+import { useToast } from "../context/ToastContext";
 import { formatMoney } from "../lib/format";
 
 const EMPTY_ITEM = { description: "", quantity: "1", unitPrice: "" };
@@ -21,6 +22,7 @@ function in30DaysIso() {
 
 export default function NewInvoicePage() {
   const navigate = useNavigate();
+  const { showSuccess } = useToast();
   const [clients, setClients] = useState([]);
   const [clientId, setClientId] = useState("");
   const [issueDate, setIssueDate] = useState(todayIso());
@@ -78,6 +80,7 @@ export default function NewInvoicePage() {
         })),
       };
       const created = await invoicesApi.createInvoice(payload);
+      showSuccess(`Invoice ${created.invoiceNumber} created.`);
       navigate(`/invoices/${created.id}`);
     } catch (err) {
       setError(apiErrorMessage(err, "Could not create this invoice."));

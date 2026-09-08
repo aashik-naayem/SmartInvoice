@@ -4,6 +4,7 @@ const VARIANTS = {
     "bg-transparent text-[color:var(--color-ink)] border border-[color:var(--color-border)] hover:border-[color:var(--color-pine)]",
   ghost: "bg-transparent text-[color:var(--color-ink-muted)] hover:text-[color:var(--color-ink)]",
   danger: "bg-transparent text-[color:var(--color-overdue)] hover:bg-[#f6e8e3]",
+  dangerSolid: "bg-[color:var(--color-overdue)] text-white hover:opacity-90",
 };
 
 export default function Button({
