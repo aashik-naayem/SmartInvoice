@@ -10,6 +10,7 @@ import InvoiceDetailPage from "./pages/InvoiceDetailPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import LoginPage from "./pages/LoginPage";
 import NewInvoicePage from "./pages/NewInvoicePage";
+import PublicInvoicePage from "./pages/PublicInvoicePage";
 import RecurringInvoicesPage from "./pages/RecurringInvoicesPage";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -22,6 +23,7 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/invoice/:token" element={<PublicInvoicePage />} />
 
               <Route
                 element={

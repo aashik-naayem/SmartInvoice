@@ -52,6 +52,11 @@ public class InvoiceController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/send")
+    public ResponseEntity<InvoiceResponse> send(@PathVariable Long id) {
+        return ResponseEntity.ok(invoiceService.sendToClient(id));
+    }
+
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
         Invoice invoice = invoiceService.getOwnedInvoiceEntity(id);

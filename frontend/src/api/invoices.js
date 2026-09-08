@@ -20,6 +20,10 @@ export function deleteInvoice(id) {
   return client.delete(`/invoices/${id}`);
 }
 
+export function sendInvoice(id) {
+  return client.post(`/invoices/${id}/send`).then((res) => res.data);
+}
+
 export async function downloadInvoicePdf(id, invoiceNumber) {
   const res = await client.get(`/invoices/${id}/pdf`, { responseType: "blob" });
   const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));

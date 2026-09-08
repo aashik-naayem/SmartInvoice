@@ -62,6 +62,13 @@ public class Invoice {
     @Column(length = 500)
     private String notes;
 
+    /** Unguessable token used to build the public, no-login link a client can open ({@code /invoice/{token}}). */
+    @Column(name = "public_token", unique = true, length = 36)
+    private String publicToken;
+
+    /** When the invoice was last emailed to the client via {@code POST /invoices/{id}/send}. */
+    private LocalDateTime sentAt;
+
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<InvoiceItem> items = new ArrayList<>();

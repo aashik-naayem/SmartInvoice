@@ -8,22 +8,31 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Read-only invoice view returned by the public, unauthenticated endpoint
+ * ({@code GET /api/v1/public/invoices/{token}}). Deliberately a separate shape from
+ * {@link InvoiceResponse} so we only ever expose what a client should see - no internal
+ * user id, no client id, just who it's from/to and what's owed.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InvoiceResponse {
+public class PublicInvoiceResponse {
 
-    private Long id;
     private String invoiceNumber;
-    private Long clientId;
+    private InvoiceStatus status;
+
+    private String issuerName;
+    private String issuerEmail;
+
     private String clientName;
+
     private LocalDate issueDate;
     private LocalDate dueDate;
-    private InvoiceStatus status;
+
     private String currency;
     private BigDecimal subtotal;
     private BigDecimal taxRate;
@@ -31,11 +40,7 @@ public class InvoiceResponse {
     private BigDecimal totalAmount;
     private BigDecimal amountPaid;
     private BigDecimal balanceDue;
+
     private String notes;
     private List<InvoiceItemResponse> items;
-    private LocalDateTime createdAt;
-
-    /** Present once the invoice has been sent at least once; used to build the public share link. */
-    private String publicToken;
-    private LocalDateTime sentAt;
 }

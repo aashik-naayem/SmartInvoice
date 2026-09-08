@@ -32,6 +32,7 @@ export default function InvoiceDetailPage() {
   const [paymentForm, setPaymentForm] = useState(EMPTY_PAYMENT);
   const [paymentError, setPaymentError] = useState("");
   const [savingPayment, setSavingPayment] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const load = () => {
     invoicesApi
@@ -50,6 +51,28 @@ export default function InvoiceDetailPage() {
       showSuccess(`Status updated to ${status}.`);
     } catch (err) {
       showError(apiErrorMessage(err, "Could not update the status."));
+    }
+  };
+
+  const handleSend = async () => {
+    setSending(true);
+    try {
+      const updated = await invoicesApi.sendInvoice(id);
+      setInvoice(updated);
+      showSuccess("Invoice sent to the client.");
+    } catch (err) {
+      showError(apiErrorMessage(err, "Could not send this invoice."));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleCopyLink = async (shareLink) => {
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      showSuccess("Link copied.");
+    } catch {
+      showError("Could not copy the link.");
     }
   };
 
@@ -143,11 +166,29 @@ export default function InvoiceDetailPage() {
           >
             Download PDF
           </Button>
+          <Button onClick={handleSend} disabled={sending}>
+            {sending ? "Sending…" : invoice.sentAt ? "Resend to client" : "Send to client"}
+          </Button>
           <Button variant="danger" onClick={handleDelete}>
             Delete
           </Button>
         </div>
       </div>
+
+      {invoice.publicToken && (
+        <div className="flex flex-wrap items-center gap-3 rounded-sm border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-4 py-3 text-sm">
+          <span className="text-[color:var(--color-ink-muted)]">Client link</span>
+          <code className="flex-1 truncate text-xs">
+            {window.location.origin}/invoice/{invoice.publicToken}
+          </code>
+          <button
+            onClick={() => handleCopyLink(`${window.location.origin}/invoice/${invoice.publicToken}`)}
+            className="text-xs font-medium text-[color:var(--color-pine)] hover:underline"
+          >
+            Copy link
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="rounded-sm border border-[color:var(--color-border)] bg-[color:var(--color-surface)] lg:col-span-2">

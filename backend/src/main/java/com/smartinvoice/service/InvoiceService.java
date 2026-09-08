@@ -1,6 +1,7 @@
 package com.smartinvoice.service;
 
 import com.smartinvoice.dto.*;
+import com.smartinvoice.email.EmailService;
 import com.smartinvoice.entity.Client;
 import com.smartinvoice.entity.Invoice;
 import com.smartinvoice.entity.InvoiceItem;
@@ -9,6 +10,7 @@ import com.smartinvoice.entity.RecurringInvoiceItem;
 import com.smartinvoice.entity.User;
 import com.smartinvoice.enums.InvoiceStatus;
 import com.smartinvoice.exception.ResourceNotFoundException;
+import com.smartinvoice.pdf.InvoicePdfService;
 import com.smartinvoice.repository.ClientRepository;
 import com.smartinvoice.repository.InvoiceRepository;
 import com.smartinvoice.repository.PaymentRepository;
@@ -21,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,8 @@ public class InvoiceService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
+    private final InvoicePdfService invoicePdfService;
+    private final EmailService emailService;
 
     @Transactional
     public InvoiceResponse create(InvoiceRequest request) {
@@ -163,6 +169,47 @@ public class InvoiceService {
         return toResponse(invoiceRepository.save(invoice));
     }
 
+    /**
+     * Emails the invoice to its client and, if it's still a DRAFT, moves it to SENT.
+     * Generates the invoice's public share token the first time it's sent; re-sending
+     * later reuses the same token, so a link the client already opened keeps working.
+     */
+    @Transactional
+    public InvoiceResponse sendToClient(Long id) {
+        Invoice invoice = findOwnedInvoice(id);
+        // Force-load associations the email/PDF step needs, same as getOwnedInvoiceEntity.
+        invoice.getItems().size();
+        invoice.getClient().getName();
+
+        if (invoice.getPublicToken() == null) {
+            invoice.setPublicToken(UUID.randomUUID().toString());
+        }
+        if (invoice.getStatus() == InvoiceStatus.DRAFT) {
+            invoice.setStatus(InvoiceStatus.SENT);
+        }
+        invoice.setSentAt(LocalDateTime.now());
+        invoice = invoiceRepository.save(invoice);
+
+        byte[] pdf = invoicePdfService.renderInvoicePdf(invoice);
+        emailService.sendInvoice(invoice, pdf);
+
+        return toResponse(invoice);
+    }
+
+    /**
+     * Looks up an invoice by its public share token for the unauthenticated client-facing view.
+     * No ownership check - the token itself is what gates access.
+     */
+    @Transactional(readOnly = true)
+    public Invoice getByPublicToken(String token) {
+        Invoice invoice = invoiceRepository.findByPublicToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        invoice.getItems().size();
+        invoice.getClient().getName();
+        invoice.getUser().getFullName();
+        return invoice;
+    }
+
     @Transactional
     public void delete(Long id) {
         Invoice invoice = findOwnedInvoice(id);
@@ -222,6 +269,42 @@ public class InvoiceService {
                 .notes(invoice.getNotes())
                 .items(items)
                 .createdAt(invoice.getCreatedAt())
+                .publicToken(invoice.getPublicToken())
+                .sentAt(invoice.getSentAt())
+                .build();
+    }
+
+    public PublicInvoiceResponse toPublicResponse(Invoice invoice) {
+        List<InvoiceItemResponse> items = invoice.getItems().stream()
+                .map(item -> InvoiceItemResponse.builder()
+                        .id(item.getId())
+                        .description(item.getDescription())
+                        .quantity(item.getQuantity())
+                        .unitPrice(item.getUnitPrice())
+                        .lineTotal(item.getLineTotal())
+                        .build())
+                .toList();
+
+        BigDecimal amountPaid = paymentRepository.sumAmountByInvoice(invoice);
+        BigDecimal balanceDue = invoice.getTotalAmount().subtract(amountPaid);
+
+        return PublicInvoiceResponse.builder()
+                .invoiceNumber(invoice.getInvoiceNumber())
+                .status(invoice.getStatus())
+                .issuerName(invoice.getUser().getFullName())
+                .issuerEmail(invoice.getUser().getEmail())
+                .clientName(invoice.getClient().getName())
+                .issueDate(invoice.getIssueDate())
+                .dueDate(invoice.getDueDate())
+                .currency(invoice.getCurrency())
+                .subtotal(invoice.getSubtotal())
+                .taxRate(invoice.getTaxRate())
+                .taxAmount(invoice.getTaxAmount())
+                .totalAmount(invoice.getTotalAmount())
+                .amountPaid(amountPaid)
+                .balanceDue(balanceDue)
+                .notes(invoice.getNotes())
+                .items(items)
                 .build();
     }
 }

@@ -19,6 +19,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     Optional<Invoice> findByIdAndUser(Long id, User user);
 
+    /** Looks up an invoice by its public share token, for the unauthenticated client-facing view. */
+    Optional<Invoice> findByPublicToken(String publicToken);
+
     boolean existsByInvoiceNumber(String invoiceNumber);
 
     List<Invoice> findByStatusIn(List<InvoiceStatus> statuses);
