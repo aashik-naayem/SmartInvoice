@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/recurring-invoices/{{recurringId}}"
+method: GET
+order: 3000

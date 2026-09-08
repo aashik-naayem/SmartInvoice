@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/analytics/dashboard"
+method: GET
+order: 1000

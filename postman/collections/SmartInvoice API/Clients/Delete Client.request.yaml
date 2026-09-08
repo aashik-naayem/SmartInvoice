@@ -1,0 +1,5 @@
+$kind: http-request
+description: Run this last, after the Invoices/Payments folders, since invoices reference the client.
+url: "{{baseUrl}}/clients/{{clientId}}"
+method: DELETE
+order: 5000

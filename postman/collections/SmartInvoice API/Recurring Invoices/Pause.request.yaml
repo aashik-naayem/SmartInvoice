@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/recurring-invoices/{{recurringId}}/pause"
+method: PATCH
+order: 4000

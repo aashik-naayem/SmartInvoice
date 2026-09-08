@@ -1,0 +1,23 @@
+$kind: http-request
+description: "Valid method values: CASH, BANK_TRANSFER, CREDIT_CARD, DEBIT_CARD, PAYPAL, OTHER."
+url: "{{baseUrl}}/invoices/{{invoiceId}}/payments"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "amount": 500.00,
+      "paymentDate": "2026-09-10",
+      "method": "BANK_TRANSFER",
+      "reference": "TXN-001",
+      "notes": "First installment"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      if (data.id) { pm.collectionVariables.set('paymentId', data.id); }
+    language: text/javascript
+order: 1000

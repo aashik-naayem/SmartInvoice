@@ -1,0 +1,25 @@
+$kind: http-request
+description: Saves the JWT into the {{token}} collection variable. Every other request in this collection uses it automatically via collection-level bearer auth.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "ashik@example.com",
+      "password": "password123"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      if (data.token) {
+          pm.collectionVariables.set('token', data.token);
+          pm.test('Token saved', () => pm.expect(data.token).to.be.a('string'));
+      }
+    language: text/javascript
+order: 2000

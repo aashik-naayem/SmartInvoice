@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/invoices/{{invoiceId}}/payments/{{paymentId}}"
+method: DELETE
+order: 3000

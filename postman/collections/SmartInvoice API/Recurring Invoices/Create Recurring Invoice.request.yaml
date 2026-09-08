@@ -1,0 +1,30 @@
+$kind: http-request
+description: "Valid frequency values: WEEKLY, MONTHLY, QUARTERLY, YEARLY. Requires {{clientId}} to be set."
+url: "{{baseUrl}}/recurring-invoices"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "clientId": {{clientId}},
+      "frequency": "MONTHLY",
+      "startDate": "2026-09-07",
+      "endDate": null,
+      "daysDueAfterIssue": 14,
+      "currency": "USD",
+      "taxRate": 7.5,
+      "notes": "Monthly retainer",
+      "autoSend": true,
+      "items": [
+        { "description": "Monthly retainer", "quantity": 1, "unitPrice": 800.00 }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      if (data.id) { pm.collectionVariables.set('recurringId', data.id); }
+    language: text/javascript
+order: 1000

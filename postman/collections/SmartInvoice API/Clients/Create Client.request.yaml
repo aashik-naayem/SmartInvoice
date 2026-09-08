@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/clients"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Acme Corp",
+      "email": "billing@acme.test",
+      "phone": "+1 555 0100",
+      "address": "123 Market St, Springfield"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      if (data.id) { pm.collectionVariables.set('clientId', data.id); }
+    language: text/javascript
+order: 1000

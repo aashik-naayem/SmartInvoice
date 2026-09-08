@@ -1,0 +1,5 @@
+$kind: http-request
+description: Generates an extra invoice immediately, without touching the schedule's next run date.
+url: "{{baseUrl}}/recurring-invoices/{{recurringId}}/generate-now"
+method: POST
+order: 6000

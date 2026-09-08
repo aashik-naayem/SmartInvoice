@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/clients/{{clientId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Acme Corp",
+      "email": "ap@acme.test",
+      "phone": "+1 555 0199",
+      "address": "123 Market St, Springfield"
+    }
+order: 4000

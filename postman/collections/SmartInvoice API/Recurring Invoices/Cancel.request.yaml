@@ -1,0 +1,5 @@
+$kind: http-request
+description: Soft-cancel - sets status to CANCELLED rather than deleting the schedule's history.
+url: "{{baseUrl}}/recurring-invoices/{{recurringId}}"
+method: DELETE
+order: 7000

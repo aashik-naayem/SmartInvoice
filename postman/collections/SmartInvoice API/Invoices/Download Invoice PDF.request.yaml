@@ -1,0 +1,5 @@
+$kind: http-request
+description: Response is a binary PDF - use Postman's "Save Response" > "Save to a file" to inspect it.
+url: "{{baseUrl}}/invoices/{{invoiceId}}/pdf"
+method: GET
+order: 5000

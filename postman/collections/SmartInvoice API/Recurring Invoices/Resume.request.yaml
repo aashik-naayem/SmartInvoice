@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/recurring-invoices/{{recurringId}}/resume"
+method: PATCH
+order: 5000

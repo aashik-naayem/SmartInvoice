@@ -1,0 +1,17 @@
+$kind: http-request
+description: Creates a new user. Run once - a second attempt with the same email returns a conflict.
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Ashik Rahman",
+      "email": "ashik@example.com",
+      "password": "password123"
+    }
+auth:
+  type: noauth
+order: 1000

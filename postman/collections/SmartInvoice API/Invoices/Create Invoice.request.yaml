@@ -1,0 +1,29 @@
+$kind: http-request
+description: Requires {{clientId}} to be set - run "Create Client" first.
+url: "{{baseUrl}}/invoices"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "clientId": {{clientId}},
+      "issueDate": "2026-09-07",
+      "dueDate": "2026-10-07",
+      "currency": "USD",
+      "taxRate": 7.5,
+      "notes": "Thanks for your business.",
+      "items": [
+        { "description": "Website redesign", "quantity": 1, "unitPrice": 1500.00 },
+        { "description": "Hosting setup", "quantity": 2, "unitPrice": 75.00 }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      if (data.id) { pm.collectionVariables.set('invoiceId', data.id); }
+      if (data.invoiceNumber) { pm.collectionVariables.set('invoiceNumber', data.invoiceNumber); }
+    language: text/javascript
+order: 1000

@@ -1,0 +1,16 @@
+$kind: collection
+description: 'Full request set for the SmartInvoice backend: auth, clients, invoices, payments, recurring invoices, and analytics. Run requests top-to-bottom within a folder the first time - the login request and each "Create" request save their id/token into collection variables so later requests can reuse them automatically.'
+variables:
+  baseUrl: http://localhost:8081/api/v1
+  token: ""
+  clientId: ""
+  invoiceId: ""
+  invoiceNumber: ""
+  paymentId: ""
+  recurringId: ""
+auth:
+  - id: 79777656-83ac-4adc-bf36-e98eb504af5f
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

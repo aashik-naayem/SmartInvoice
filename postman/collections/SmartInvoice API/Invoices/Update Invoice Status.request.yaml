@@ -1,0 +1,13 @@
+$kind: http-request
+description: "Valid values: DRAFT, SENT, PAID, OVERDUE, CANCELLED."
+url: "{{baseUrl}}/invoices/{{invoiceId}}/status"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "SENT"
+    }
+order: 4000
