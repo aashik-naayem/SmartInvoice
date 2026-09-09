@@ -32,6 +32,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildBody(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
+    @ExceptionHandler(EmailDeliveryException.class)
+    public ResponseEntity<Map<String, Object>> handleEmailDelivery(EmailDeliveryException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(buildBody(HttpStatus.BAD_GATEWAY, ex.getMessage()));
+    }
+
     @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, AuthenticationException.class})
     public ResponseEntity<Map<String, Object>> handleAuthFailure(Exception ex) {
         // Deliberately generic - never reveal whether the email or the password was wrong.

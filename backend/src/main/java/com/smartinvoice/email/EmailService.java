@@ -3,6 +3,7 @@ package com.smartinvoice.email;
 import com.smartinvoice.entity.Client;
 import com.smartinvoice.entity.Invoice;
 import com.smartinvoice.enums.ReminderType;
+import com.smartinvoice.exception.EmailDeliveryException;
 import com.smartinvoice.exception.InvalidOperationException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +39,11 @@ public class EmailService {
      * Emails the invoice to its client: a short message with the public, no-login link to view
      * it, plus the PDF attached directly. Called from the owner-triggered "Send to client" action.
      * <p>
-     * Unlike {@link #sendPaymentReminder}, a missing client email is treated as a real error here
-     * (there's nothing sensible to do with an explicit send request otherwise) - but a mail server
-     * that isn't configured is still just logged, same as reminders, so the invoice can still be
-     * marked SENT and its link shared manually.
+     * Unlike {@link #sendPaymentReminder} (a background job, where one bad address shouldn't crash
+     * everyone else's reminders), this is a single explicit user action - so any failure to
+     * actually deliver is thrown as an {@link EmailDeliveryException} rather than just logged.
+     * The caller's {@code @Transactional} method rolls back the SENT status/token along with it,
+     * so the invoice never ends up claiming to be sent when it wasn't.
      */
     public void sendInvoice(Invoice invoice, byte[] pdfBytes) {
         Client client = invoice.getClient();
@@ -52,9 +54,9 @@ public class EmailService {
 
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {
-            log.warn("Invoice {} marked as sent, but mail is not configured (set spring.mail.* properties) - "
-                    + "share the invoice link with the client manually.", invoice.getInvoiceNumber());
-            return;
+            throw new EmailDeliveryException(
+                    "Email isn't set up on this server yet. Set spring.mail.username and "
+                            + "spring.mail.password in application.properties.");
         }
 
         String link = frontendUrl + "/invoice/" + invoice.getPublicToken();
@@ -73,6 +75,9 @@ public class EmailService {
         } catch (Exception e) {
             log.error("Failed to send invoice {} to {}: {}", invoice.getInvoiceNumber(), client.getEmail(),
                     e.getMessage());
+            throw new EmailDeliveryException(
+                    "Could not deliver the email to " + client.getEmail() + ". Check your spring.mail.* "
+                            + "settings and that the mail account/app password is valid.");
         }
     }
 
